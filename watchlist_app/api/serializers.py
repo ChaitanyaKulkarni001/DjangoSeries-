@@ -1,0 +1,23 @@
+
+# from serializers import Serializers
+from rest_framework import serializers
+from watchlist_app.models import Series
+
+class SeriesSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    name  = serializers.CharField()
+    description = serializers.CharField()
+    activate = serializers.BooleanField()
+    
+    def create(self,validated_data):
+        return Series.objects.create(**validated_data)
+    
+    def update(self, instance, validated_data):
+        """
+        Update and return an existing `Series` instance, given the validated data.
+        """
+        instance.name = validated_data.get('name', instance.name)
+        instance.description = validated_data.get('description', instance.description)
+        instance.activate = validated_data.get('activate', instance.activate)
+        instance.save()
+        return instance
