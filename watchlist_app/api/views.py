@@ -1,10 +1,99 @@
-from .serializers import SeriesSerializer
+from .serializers import WatchlistSerializer,StreamPlatformSerializer
 from rest_framework.response import Response
 # from rest_framework.decorators import api_view
 from rest_framework import status
-from watchlist_app.models import Series
+from watchlist_app.models import WatchList,StreamPlatform
 from rest_framework.views import APIView
     
+
+
+class watchStreamplatform(APIView):
+    def get(self,request):
+        content = StreamPlatform.objects.all()
+        serializer = StreamPlatformSerializer(content,many=True,context={'request': request})
+        return Response(serializer.data)
+    
+    def post(self,request):
+        data = request.data
+        serializer = StreamPlatformSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class WatchListAll(APIView):
+    def get(self,request):
+        series = WatchList.objects.all()
+        serializer = WatchlistSerializer(series,many=True)
+        return Response(serializer.data)
+    
+    def post(self,request):
+        serializer = WatchlistSerializer(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
+
+class GetStream(APIView):
+    def get(self,request,id):
+        try:
+            stream  = StreamPlatform.objects.get(id=id)
+            serializer = StreamPlatformSerializer(stream)
+            return Response(serializer.data,status = status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"Error ":f"{id} is not a valid stream number"},status=status.HTTP_400_BAD_REQUEST)
+        
+    def put(self,request,id):
+        content = StreamPlatform.objects.get(id=id)
+        
+        serializer = StreamPlatformSerializer(content,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete (self, request,id):
+        content = StreamPlatform.objects.get(id=id)
+        content.delete()
+        return Response({"NO_CONTENT":"The content here has been moved or deleted"},status=status.HTTP_204_NO_CONTENT)
+            
+        
+
+class getDetail(APIView):
+    def get(self,request,id):
+        series = WatchList.objects.get(id = id)
+        serializer = WatchlistSerializer(series)
+        return Response(serializer.data,status = status.HTTP_200_OK)
+    
+    def put(self,request,id):
+        
+        series = WatchList.objects.get(id= id)
+        serializer = WatchlistSerializer(series ,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self,request,id):
+        series = WatchList.objects.get(id=id)
+        series.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+
+
+
+
+
+
+
+
+
+# Basics
+'''
+
 class SeriesList(APIView):
     def get(self,request):
         series = Series.objects.all()
@@ -39,6 +128,7 @@ class GetSeriesDetail(APIView):
         series = Series.objects.get(id=id)
         series.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+'''
 # @api_view(['GET', 'POST', 'PUT'])
 # def series_list(request):
 #     if request.method == 'GET':    

@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 urlpatterns = [
-    path('serieslist/',views.SeriesList.as_view()),
-    path('get_series_detail/<int:id>/',views.GetSeriesDetail.as_view()),
+    path('watchlist/',views.WatchListAll.as_view()),
+    path('get_detail/<int:id>/',views.getDetail.as_view(),name = 'get_movie_detail'),
+    path('stream/',views.watchStreamplatform.as_view()),
+    path('get_stream/<int:id>/',views.GetStream.as_view()),
 ]

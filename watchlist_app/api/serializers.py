@@ -1,11 +1,25 @@
 
 # from serializers import Serializers
 from rest_framework import serializers
-from watchlist_app.models import Series
+from watchlist_app.models import WatchList,StreamPlatform
 
 
+class WatchlistSerializer(serializers.ModelSerializer):    
+    class Meta:
+        model = WatchList
+        fields = "__all__"
 
-
+class StreamPlatformSerializer(serializers.ModelSerializer):
+    
+    # Nested serializers
+    # watchlist = WatchlistSerializer(many=True,read_only = True)
+    # https://www.django-rest-framework.org/api-guide/relations/#stringrelatedfield watch this 
+    # watchlist = serializers.StringRelatedField(many=True)
+    watchlist = serializers.HyperlinkedRelatedField(many=True,view_name='get_movie_detail',read_only = True,lookup_field = 'id')
+    # watchlist = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    class Meta:
+        model = StreamPlatform
+        fields = "__all__"
 
 
 

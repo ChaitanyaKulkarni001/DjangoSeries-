@@ -1,4 +1,5 @@
 from django.contrib import admin
-from .models import Series
+from .models import StreamPlatform,WatchList
 # Register your models here.
-admin.site.register(Series)
+admin.site.register(StreamPlatform)
+admin.site.register(WatchList)
