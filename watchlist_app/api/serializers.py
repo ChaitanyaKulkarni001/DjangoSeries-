@@ -1,10 +1,19 @@
 
 # # from serializers import Serializers
 from rest_framework import serializers
-from watchlist_app.models import WatchList,StreamPlatform
+from watchlist_app.models import WatchList,StreamPlatform,Review
 
 
+class ReviewSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Review
+        fields = "__all__"
 class WatchlistSerializer(serializers.ModelSerializer):    
+    # reviews = ReviewSerializer(many=True,read_only=True)
+    reviews = serializers.SerializerMethodField()
+    def get_reviews(self, obj):
+        return [f'{review.rating}:{review.description}' for review in obj.reviews.all()]
     class Meta:
         model = WatchList
         fields = "__all__"
@@ -24,9 +33,9 @@ class StreamPlatformSerializer(serializers.HyperlinkedModelSerializer):
         extra_kwargs = {
             'url': {'view_name': 'get_stream_detail', 'lookup_field': 'id'}  # Corrected view name
         }
-    # class Meta:
-    #     model = StreamPlatform
-    #     fields = "__all__"
+        
+        
+
     # extra_kwargs = {
     #         'url': {'view_name': 'get_stream_detail', 'lookup_field': 'id'}
     #     }
