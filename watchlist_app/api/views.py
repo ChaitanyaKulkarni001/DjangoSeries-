@@ -1,20 +1,63 @@
-# from .serializers import WatchlistSerializer,StreamPlatformSerializer
-# from rest_framework.response import Response
-# # from rest_framework.decorators import api_view
-# from rest_framework import status
-# from watchlist_app.models import WatchList,StreamPlatform
-# from rest_framework.views import APIView
-    
+# from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from watchlist_app.models import StreamPlatform, WatchList,Review
 from .serializers import StreamPlatformSerializer, WatchlistSerializer,ReviewSerializer
+'''
 from rest_framework import mixins
 from rest_framework import generics
+----------------------------------------------------------------|
+'''
+
+from rest_framework import generics
+# Using genrics 
+# class ReviewList(generics.ListCreateAPIView):
+
+class ReviewCreate(generics.CreateAPIView):
+    serializer_class = ReviewSerializer
+    def perform_create(self,serializer):
+        pk = self.kwargs.get('pk')
+        watchlist = WatchList.objects.get(pk=pk)
+        serializer.save(watchlist=watchlist)
+                       
+    # queryset = Review.objects.all()
+
+class ReviewList(generics.ListAPIView):
+    # queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    def get_queryset(self):
+        pk = self.kwargs['pk']
+        # print(pk)
+        res = Review.objects.filter(watchlist = pk)
+        # print (res,"REview")
+        # if not (res.exists()):
+        #     return "does not exists"
+        # serialzier = ReviewSerializer(res,many = True)
+        # print("Serailizer " ,serialzier.data)
+        # print(Review.objects.filter(watchlist = pk))
+        return res
+
+    
+
+class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Review.objects.all()
+    print(queryset)
+    serializer_class = ReviewSerializer
+
+class WatchListAll(generics.ListCreateAPIView):
+    queryset = WatchList.objects.all()
+    serializer_class = WatchlistSerializer
+
+class getDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = WatchList.objects.all()
+    serializer_class = WatchlistSerializer
+    
 
 
+'''
 # Using mixins
+----------------------------------------------------------------|
 class ReviewDetail(mixins.RetrieveModelMixin,generics.GenericAPIView):
     queryset=Review.objects.all()
     serializer_class = ReviewSerializer
@@ -30,6 +73,7 @@ class ReviewList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericA
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
+'''
     
 class watchStreamPlatform(APIView):
     def get(self, request):
@@ -45,29 +89,29 @@ class watchStreamPlatform(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class WatchListAll(APIView):
-    def get(self, request):
-        content = WatchList.objects.all()
-        serializer = WatchlistSerializer(content, many=True, context={'request': request})
-        return Response(serializer.data)
+# class WatchListAll(APIView):
+#     def get(self, request):
+#         content = WatchList.objects.all()
+#         serializer = WatchlistSerializer(content, many=True, context={'request': request})
+#         return Response(serializer.data)
 
-    def post(self, request):
-        data = request.data
-        serializer = WatchlistSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     def post(self, request):
+#         data = request.data
+#         serializer = WatchlistSerializer(data=data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class getDetail(APIView):
-    def get(self, request, id):
-        try:
-            watchlist = WatchList.objects.get(id=id)
-        except WatchList.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+# class getDetail(APIView):
+#     def get(self, request, id):
+#         try:
+#             watchlist = WatchList.objects.get(id=id)
+#         except WatchList.DoesNotExist:
+#             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        serializer = WatchlistSerializer(watchlist, context={'request': request})
-        return Response(serializer.data)
+#         serializer = WatchlistSerializer(watchlist, context={'request': request})
+#         return Response(serializer.data)
 
 class GetStream(APIView):
     def get(self, request, id):

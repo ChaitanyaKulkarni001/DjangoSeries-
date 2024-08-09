@@ -5,10 +5,10 @@ from watchlist_app.models import WatchList,StreamPlatform,Review
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    
     class Meta:
         model = Review
-        fields = "__all__"
+        exclude = ('watchlist',)
+        # fields = "__all__"
 class WatchlistSerializer(serializers.ModelSerializer):    
     # reviews = ReviewSerializer(many=True,read_only=True)
     reviews = serializers.SerializerMethodField()
@@ -25,7 +25,7 @@ class StreamPlatformSerializer(serializers.HyperlinkedModelSerializer):
 #     # watchlist = WatchlistSerializer(many=True,read_only = True)
 #     # https://www.django-rest-framework.org/api-guide/relations/#stringrelatedfield watch this 
 #     # watchlist = serializers.StringRelatedField(many=True)
-    watchlist = serializers.HyperlinkedRelatedField(many=True,view_name='get_movie_detail',read_only = True,lookup_field='id')
+    watchlist = serializers.HyperlinkedRelatedField(many=True,view_name='get_movie_detail',read_only = True)
 #     # watchlist = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     class Meta:
         model = StreamPlatform
