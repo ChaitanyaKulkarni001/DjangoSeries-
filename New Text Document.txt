@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html data-build="next-prod-a31a4dad389bc2261a0290ef73ff0004b48b97d8" class="" dir="ltr">
+
+<head>
+    <meta charSet="utf-8" />
+    <title>ChatGPT</title>
+    <link rel="apple-touch-icon" sizes="180x180"
+        href="https://cdn.oaistatic.com/_next/static/media/apple-touch-icon.82af6fe1.png" />
+    <link rel="icon" type="image/png" sizes="32x32"
+        href="https://cdn.oaistatic.com/_next/static/media/favicon-32x32.630a2b99.png" />
+…(document.onreadystatechange=e,c())}}}})();
+    </script>
+</body>
+
+</html>
