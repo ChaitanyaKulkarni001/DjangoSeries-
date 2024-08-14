@@ -16,7 +16,7 @@ from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
 
 
-class CreateReview():
+
     
 
 
@@ -27,6 +27,7 @@ class ReviewDetail(mixins.RetrieveModelMixin,generics.GenericAPIView):
     
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
+    
 class ReviewList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
