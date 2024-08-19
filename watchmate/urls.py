@@ -16,8 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
+# import user_app.urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('watchlist_app/',include('watchlist_app.api.urls'))
+    path('watchlist_app/',include('watchlist_app.api.urls')),
+    # path('api-auth',include('rest_framework.urls'))
+    path('account/',include('user_app.api.urls'))
 ]

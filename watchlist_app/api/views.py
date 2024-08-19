@@ -14,21 +14,50 @@ from rest_framework import mixins
 from rest_framework import generics
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
-
-
-
-    
+from rest_framework.exceptions import ValidationError
+from .permissions import isAdminorReadOnly,ReviewUserorReadoOnly
+from rest_framework.permissions import IsAuthenticated
+class ReviewCreate(generics.CreateAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    def perform_create(self,serializer):
+        user = self.request.user
+        pk = self.kwargs.get('pk')
+        print("pk is",pk)
+        watchlist = WatchList.objects.get(pk=pk)
+        print(watchlist)
+        filtration = Review.objects.filter(watchlist=watchlist ,user_name=user)
+        if filtration.exists():
+            raise ValidationError("Review already exists")
+        
+        if watchlist.number_rating == 0:
+            watchlist.avg_rating = serializer.validated_data['rating']
+        else:
+            watchlist.avg_rating = (watchlist.avg_rating+serializer.validated_data['rating'])/2
+        watchlist.number_rating += 1
+        watchlist.save()
+        serializer.save(watchlist=watchlist,user_name=user )
+                       
 
 
 # Using mixins
-class ReviewDetail(mixins.RetrieveModelMixin,generics.GenericAPIView):
+class ReviewDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,generics.GenericAPIView):
     queryset=Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = [ReviewUserorReadoOnly]
+    # permission_classes = [IsAuthenticated]
     
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
     
+    # def post(self, request, *args, **kwargs):
+    #     return self.create(request, *args, **kwargs)
+    
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+    
 class ReviewList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
@@ -40,35 +69,35 @@ class ReviewList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericA
     
     
 
-class StreamREmoVE(viewsets.ViewSet):
-    """
-    A simple ViewSet for listing or retrieving Strems.
-    """
-    def list(self, request):
-        queryset = StreamPlatform.objects.all()
-        serializer = StreamPlatformSerializer(queryset, many=True,context={'request': request})
-        return Response(serializer.data)
+# class StreamREmoVE(viewsets.ViewSet):
+#     """
+#     A simple ViewSet for listing or retrieving Strems.
+#     """
+#     def list(self, request):
+#         queryset = StreamPlatform.objects.all()
+#         serializer = StreamPlatformSerializer(queryset, many=True,context={'request': request})
+#         return Response(serializer.data)
 
-    def retrieve(self, request, pk=None):
-        queryset = StreamPlatform.objects.all()
-        user = get_object_or_404(queryset, pk=pk)
-        serializer = StreamPlatformSerializer(user,context={'request': request})
-        return Response(serializer.data)
+#     def retrieve(self, request, pk=None):
+#         queryset = StreamPlatform.objects.all()
+#         user = get_object_or_404(queryset, pk=pk)
+#         serializer = StreamPlatformSerializer(user,context={'request': request})
+#         return Response(serializer.data)
     
-    def create(self, request):
-        data = request.data
-        serializer = StreamPlatformSerializer(data=data,context={'request': request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        print(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     def create(self, request):
+#         data = request.data
+#         serializer = StreamPlatformSerializer(data=data,context={'request': request})
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         print(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
-    def destroy(self, request,pk):
-        data = StreamPlatform.objects.get(pk=pk)
-        data.delete()
-        return Response({"NO_CONTENT":"The content here has been moved or deleted"},status=status.HTTP_204_NO_CONTENT)
+#     def destroy(self, request,pk):
+#         data = StreamPlatform.objects.get(pk=pk)
+#         data.delete()
+#         return Response({"NO_CONTENT":"The content here has been moved or deleted"},status=status.HTTP_204_NO_CONTENT)
     
 class Stream(viewsets.ModelViewSet):
 # class Stream(viewsets.ReadOnlyModelViewSet):
